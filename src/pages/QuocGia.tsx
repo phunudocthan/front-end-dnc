@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -11,19 +11,19 @@ import {
   ListItemText,
   Pagination,
   CardMedia,
-} from '@mui/material';
-import { Link } from 'react-router-dom';
-import { filmService } from '../services/filmService';
-import { IFilm } from '../types';
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import { filmService } from "../services/filmService";
+import { IFilm } from "../types";
 
 const COUNTRY_LIST = [
-  { label: 'Việt Nam', value: 'vietnam' },
-  { label: 'Hàn Quốc', value: 'korea' },
-  { label: 'Trung Quốc', value: 'china' },
-  { label: 'Mỹ', value: 'usa' },
-  { label: 'Nhật Bản', value: 'japan' },
-  { label: 'Thái Lan', value: 'thailand' },
-  { label: 'Châu Âu', value: 'europe' },
+  { label: "Việt Nam", value: "vietnam" },
+  { label: "Hàn Quốc", value: "korea" },
+  { label: "Trung Quốc", value: "china" },
+  { label: "Mỹ", value: "usa" },
+  { label: "Nhật Bản", value: "japan" },
+  { label: "Thái Lan", value: "thailand" },
+  { label: "Châu Âu", value: "europe" },
 ];
 
 const QuocGia = () => {
@@ -38,9 +38,14 @@ const QuocGia = () => {
       if (!selectedCountry) return;
       setLoading(true);
       try {
-        const res = await filmService.getAllFilms({ quocGia: selectedCountry, page, limit: 16, sort: '-createdAt' });
-        setFilms(res.data.films);
-        setTotalPages(Math.ceil(res.data.films.length / 16) || 1);
+        const res = await filmService.getAllFilms({
+          quocGia: selectedCountry,
+          page,
+          limit: 16,
+          sort: "-createdAt",
+        });
+        setFilms(res.films);
+        setTotalPages(Math.ceil(res.films.length / 16) || 1);
       } catch (err) {
         setFilms([]);
         setTotalPages(1);
@@ -57,12 +62,27 @@ const QuocGia = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           Quốc gia
         </Typography>
-        <List sx={{ display: 'flex', flexWrap: 'wrap', mb: 3 }}>
+        <List sx={{ display: "flex", flexWrap: "wrap", mb: 3 }}>
           {COUNTRY_LIST.map((country) => (
             <ListItem
               key={country.value}
-              onClick={() => { setSelectedCountry(country.value); setPage(1); }}
-              sx={{ width: 'auto', cursor: 'pointer', mr: 2, mb: 1, borderRadius: 2, bgcolor: selectedCountry === country.value ? 'primary.main' : 'background.paper', color: selectedCountry === country.value ? 'white' : 'inherit', '&:hover': { bgcolor: 'primary.light', color: 'white' } }}
+              onClick={() => {
+                setSelectedCountry(country.value);
+                setPage(1);
+              }}
+              sx={{
+                width: "auto",
+                cursor: "pointer",
+                mr: 2,
+                mb: 1,
+                borderRadius: 2,
+                bgcolor:
+                  selectedCountry === country.value
+                    ? "primary.main"
+                    : "background.paper",
+                color: selectedCountry === country.value ? "white" : "inherit",
+                "&:hover": { bgcolor: "primary.light", color: "white" },
+              }}
             >
               <ListItemText primary={country.label} />
             </ListItem>
@@ -70,7 +90,9 @@ const QuocGia = () => {
         </List>
         {selectedCountry && (
           <Box sx={{ mt: 2 }}>
-            <Typography variant="h5" gutterBottom>Danh sách phim theo quốc gia</Typography>
+            <Typography variant="h5" gutterBottom>
+              Danh sách phim theo quốc gia
+            </Typography>
             {loading ? (
               <Typography>Đang tải...</Typography>
             ) : (
@@ -81,16 +103,26 @@ const QuocGia = () => {
                       <Card
                         component={Link}
                         to={`/films/${film._id}`}
-                        sx={{ height: '100%', display: 'flex', flexDirection: 'column', textDecoration: 'none' }}
+                        sx={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          textDecoration: "none",
+                        }}
                       >
                         <CardMedia
                           component="img"
                           image={`http://localhost:5000/uploads/posters/${film.poster}`}
                           alt={film.tenPhim}
-                          sx={{ height: 300, objectFit: 'cover' }}
+                          sx={{ height: 300, objectFit: "cover" }}
                         />
                         <CardContent sx={{ flexGrow: 1 }}>
-                          <Typography gutterBottom variant="h6" component="div" noWrap>
+                          <Typography
+                            gutterBottom
+                            variant="h6"
+                            component="div"
+                            noWrap
+                          >
                             {film.tenPhim}
                           </Typography>
                         </CardContent>
@@ -99,12 +131,23 @@ const QuocGia = () => {
                   ))}
                 </Grid>
                 {totalPages > 1 && (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                    <Pagination count={totalPages} page={page} onChange={(_, value) => setPage(value)} color="primary" />
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+                  >
+                    <Pagination
+                      count={totalPages}
+                      page={page}
+                      onChange={(_, value) => setPage(value)}
+                      color="primary"
+                    />
                   </Box>
                 )}
                 {films.length === 0 && (
-                  <Typography textAlign="center" color="text.secondary" sx={{ mt: 4 }}>
+                  <Typography
+                    textAlign="center"
+                    color="text.secondary"
+                    sx={{ mt: 4 }}
+                  >
                     Không có phim nào cho quốc gia này
                   </Typography>
                 )}
@@ -117,4 +160,4 @@ const QuocGia = () => {
   );
 };
 
-export default QuocGia; 
+export default QuocGia;
