@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Box,
@@ -40,7 +40,7 @@ import {
   FormControlLabel,
   Radio,
   Box as MuiBox,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -54,16 +54,23 @@ import {
   Person as PersonIcon,
   Movie as MovieIcon,
   RateReview as RateReviewIcon,
-} from '@mui/icons-material';
-import { filmService } from '../services/filmService';
-import { theLoaiService } from '../services/theLoaiService';
-import { userService } from '../services/userService';
-import { danhGiaService } from '../services/danhGiaService';
-import { adminService } from '../services/adminService';
-import { IFilm, ITheLoai, IUser, IDanhGia, IDanhGiaWithDetails, IPopulatedDanhGia } from '../types';
-import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import { IDashboardStats } from '../services/adminService';
+} from "@mui/icons-material";
+import { filmService } from "../services/filmService";
+import { theLoaiService } from "../services/theLoaiService";
+import { userService } from "../services/userService";
+import { danhGiaService } from "../services/danhGiaService";
+import { adminService } from "../services/adminService";
+import {
+  IFilm,
+  ITheLoai,
+  IUser,
+  IDanhGia,
+  IDanhGiaWithDetails,
+  IPopulatedDanhGia,
+} from "../types";
+import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { IDashboardStats } from "../services/adminService";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -98,9 +105,9 @@ interface FilmFormData {
   namPhatHanh: string;
   dienVien: string;
   quocGia: string;
-  loaiPhim: 'le' | 'bo';
+  loaiPhim: "le" | "bo";
   soTap: string;
-  episodes: { name: string; url: string; }[];
+  episodes: { name: string; url: string }[];
 }
 
 interface TheLoaiFormData {
@@ -113,18 +120,18 @@ interface FilmWithCategories extends IFilm {
 }
 
 const defaultFilmForm: FilmFormData = {
-  tenPhim: '',
-  moTa: '',
-  thoiLuong: '',
-  poster: '',
-  videoUrl: '',
+  tenPhim: "",
+  moTa: "",
+  thoiLuong: "",
+  poster: "",
+  videoUrl: "",
   theLoaiIds: [],
-  daoDien: '',
-  namPhatHanh: '',
-  dienVien: '',
-  quocGia: '',
-  loaiPhim: 'le',
-  soTap: '',
+  daoDien: "",
+  namPhatHanh: "",
+  dienVien: "",
+  quocGia: "",
+  loaiPhim: "le",
+  soTap: "",
   episodes: [],
 };
 
@@ -139,36 +146,47 @@ const Admin: React.FC = () => {
 
   // Film dialog state
   const [openFilmDialog, setOpenFilmDialog] = useState(false);
-  const [selectedFilm, setSelectedFilm] = useState<FilmWithCategories | null>(null);
+  const [selectedFilm, setSelectedFilm] = useState<FilmWithCategories | null>(
+    null
+  );
   const [filmForm, setFilmForm] = useState<FilmFormData>(defaultFilmForm);
   const [poster, setPoster] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [uploadedEpisodeFiles, setUploadedEpisodeFiles] = useState<Map<string, File>>(new Map());
+  const [uploadedEpisodeFiles, setUploadedEpisodeFiles] = useState<
+    Map<string, File>
+  >(new Map());
 
   // Category dialog state
   const [openTheLoaiDialog, setOpenTheLoaiDialog] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<ITheLoai | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<ITheLoai | null>(
+    null
+  );
   const [theLoaiForm, setTheLoaiForm] = useState<TheLoaiFormData>({
-    tenTheLoai: '',
-    moTa: '',
+    tenTheLoai: "",
+    moTa: "",
   });
 
   // Delete confirmation dialog state
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [deleteType, setDeleteType] = useState<'film' | 'theLoai' | 'user' | 'rating'>('film');
-  const [deleteId, setDeleteId] = useState<string>('');
+  const [deleteType, setDeleteType] = useState<
+    "film" | "theLoai" | "user" | "rating"
+  >("film");
+  const [deleteId, setDeleteId] = useState<string>("");
 
   // New states for users management
   const [users, setUsers] = useState<IUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [openUserDialog, setOpenUserDialog] = useState(false);
-  const [userForm, setUserForm] = useState<{ hoTen: string; email: string; role: 'user' | 'admin' }>(
-    { hoTen: '', email: '', role: 'user' }
-  );
+  const [userForm, setUserForm] = useState<{
+    hoTen: string;
+    email: string;
+    role: "user" | "admin";
+  }>({ hoTen: "", email: "", role: "user" });
 
   // New states for ratings management
   const [ratings, setRatings] = useState<IDanhGiaWithDetails[]>([]);
-  const [selectedRating, setSelectedRating] = useState<IDanhGiaWithDetails | null>(null);
+  const [selectedRating, setSelectedRating] =
+    useState<IDanhGiaWithDetails | null>(null);
   const [openRatingDialog, setOpenRatingDialog] = useState(false);
 
   // New states for statistics
@@ -183,7 +201,7 @@ const Admin: React.FC = () => {
 
   useEffect(() => {
     if (!user || !isAdmin) {
-      navigate('/');
+      navigate("/");
       return;
     }
 
@@ -191,59 +209,78 @@ const Admin: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        const [filmsRes, categoriesRes, usersRes, ratingsRes, statsRes] = await Promise.all([
-          filmService.getAllFilms({ limit: 1000 }),
-          theLoaiService.getAllCategories(),
-          userService.getAllUsers(),
-          danhGiaService.getAllRatings(),
-          adminService.getDashboardStats(),
-        ]);
+        const [filmsRes, categoriesRes, usersRes, ratingsRes, statsRes] =
+          await Promise.all([
+            filmService.getAllFilms({ limit: 1000 }),
+            theLoaiService.getAllCategories(),
+            userService.getAllUsers(),
+            danhGiaService.getAllRatings(),
+            adminService.getDashboardStats(),
+          ]);
         const categoriesList = categoriesRes.data?.categories || [];
         const filmsList = filmsRes.films || [];
         const usersList = usersRes.data?.users || [];
         const ratingsList = ratingsRes.data?.ratings || [];
 
-        console.log('DEBUG: Admin.tsx - filmsList (after assignment):', filmsList);
-        console.log('DEBUG: Admin.tsx - usersList (after assignment):', usersList);
-        console.log('DEBUG: Admin.tsx - ratingsList (after assignment):', ratingsList);
+        console.log(
+          "DEBUG: Admin.tsx - filmsList (after assignment):",
+          filmsList
+        );
+        console.log(
+          "DEBUG: Admin.tsx - usersList (after assignment):",
+          usersList
+        );
+        console.log(
+          "DEBUG: Admin.tsx - ratingsList (after assignment):",
+          ratingsList
+        );
 
-        const filmsWithCategories: FilmWithCategories[] = (filmsList || []).map(film => ({
-          ...film,
-          theLoai: (film.theLoaiIds || []).map(id =>
-            (categoriesList || []).find(cat => cat._id === id)
-          ).filter(Boolean) as ITheLoai[],
-        }));
-        
-    // Enrich ratings with user names and film titles
-    const enrichedRatings: IDanhGiaWithDetails[] = ratingsList.map((rating: IPopulatedDanhGia) => {
-      return {
-        _id: rating._id,
-        // Map populated object to string ID for IDanhGia
-        nguoiDung: rating.nguoiDung._id,
-        // Map populated object to string ID for IDanhGia
-        phim: rating.phim._id,
-        // Map diem to rating for IDanhGiaWithDetails
-        rating: rating.diem,
-        // Map nhanXet to comment for IDanhGiaWithDetails
-        comment: rating.nhanXet,
-        createdAt: rating.createdAt,
-        updatedAt: rating.updatedAt,
-        userName: rating.nguoiDung?.hoTen || 'N/A',
-        filmName: rating.phim?.tenPhim || 'N/A',
-      };
-    });
+        const filmsWithCategories: FilmWithCategories[] = (filmsList || []).map(
+          (film) => ({
+            ...film,
+            theLoai: (film.theLoaiIds || [])
+              .map((id) =>
+                (categoriesList || []).find((cat: ITheLoai) => cat._id === id)
+              )
+              .filter(Boolean) as ITheLoai[],
+          })
+        );
+
+        // Enrich ratings with user names and film titles
+        const enrichedRatings: IDanhGiaWithDetails[] = ratingsList.map(
+          (rating: IPopulatedDanhGia) => {
+            return {
+              _id: rating._id,
+              // Map populated object to string ID for IDanhGia
+              nguoiDung: rating.nguoiDung._id,
+              // Map populated object to string ID for IDanhGia
+              phim: rating.phim._id,
+              // Map diem to rating for IDanhGiaWithDetails
+              rating: rating.diem,
+              // Map nhanXet to comment for IDanhGiaWithDetails
+              comment: rating.nhanXet,
+              createdAt: rating.createdAt,
+              updatedAt: rating.updatedAt,
+              userName: rating.nguoiDung?.hoTen || "N/A",
+              filmName: rating.phim?.tenPhim || "N/A",
+            };
+          }
+        );
         setFilms(filmsWithCategories);
         setCategories(categoriesList);
         setUsers(usersList);
         setRatings(enrichedRatings);
         setStats(statsRes);
-        console.log('DEBUG: Films fetched and set in state:', filmsWithCategories);
-        console.log('DEBUG: Users fetched:', usersList);
-        console.log('DEBUG: Ratings fetched (raw):', ratingsList);
-        console.log('DEBUG: Enriched Ratings:', enrichedRatings);
+        console.log(
+          "DEBUG: Films fetched and set in state:",
+          filmsWithCategories
+        );
+        console.log("DEBUG: Users fetched:", usersList);
+        console.log("DEBUG: Ratings fetched (raw):", ratingsList);
+        console.log("DEBUG: Enriched Ratings:", enrichedRatings);
       } catch (err: any) {
-        setError('Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.');
-        console.error('Error fetching admin data:', err);
+        setError("Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.");
+        console.error("Error fetching admin data:", err);
       } finally {
         setLoading(false);
       }
@@ -256,32 +293,42 @@ const Admin: React.FC = () => {
     setTab(newValue);
   };
 
-  const handleChangeFilmForm = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }>) => {
+  const handleChangeFilmForm = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }
+    >
+  ) => {
     const { name, value } = e.target;
-    if (name === 'dienVien' || name === 'daoDien') {
+    if (name === "dienVien" || name === "daoDien") {
       setFilmForm({
         ...filmForm,
-        [name]: typeof value === 'string' ? value.split(',').map(v => v.trim()).filter(Boolean) : [],
+        [name]:
+          typeof value === "string"
+            ? value
+                .split(",")
+                .map((v) => v.trim())
+                .filter(Boolean)
+            : [],
       });
-    } else if (name === 'namPhatHanh' || name === 'soTap') {
+    } else if (name === "namPhatHanh" || name === "soTap") {
       setFilmForm({
         ...filmForm,
         [name]: value as string,
       });
-    } else if (name === 'episodes') {
+    } else if (name === "episodes") {
       setFilmForm({
         ...filmForm,
         [name]: Array.isArray(value) ? value : [],
       });
-    } else if (name === 'loaiPhim') {
-      setFilmForm(prev => {
-        const newForm = { ...prev, [name]: value as 'le' | 'bo' };
-        if (newForm.loaiPhim === 'le') {
+    } else if (name === "loaiPhim") {
+      setFilmForm((prev) => {
+        const newForm = { ...prev, [name]: value as "le" | "bo" };
+        if (newForm.loaiPhim === "le") {
           setUploadedEpisodeFiles(new Map());
           newForm.episodes = [];
         } else {
           setVideoFile(null);
-          newForm.videoUrl = '';
+          newForm.videoUrl = "";
         }
         return newForm;
       });
@@ -293,22 +340,24 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleLoaiPhimChange = (e: SelectChangeEvent<'le' | 'bo'>) => {
-    const newLoaiPhim = e.target.value as 'le' | 'bo';
-    setFilmForm(prev => {
+  const handleLoaiPhimChange = (e: SelectChangeEvent<"le" | "bo">) => {
+    const newLoaiPhim = e.target.value as "le" | "bo";
+    setFilmForm((prev) => {
       const newForm = { ...prev, loaiPhim: newLoaiPhim };
-      if (newForm.loaiPhim === 'le') {
+      if (newForm.loaiPhim === "le") {
         setUploadedEpisodeFiles(new Map());
         newForm.episodes = [];
       } else {
         setVideoFile(null);
-        newForm.videoUrl = '';
+        newForm.videoUrl = "";
       }
       return newForm;
     });
   };
 
-  const handleChangeTheLoaiForm = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChangeTheLoaiForm = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setTheLoaiForm({
       ...theLoaiForm,
@@ -316,7 +365,11 @@ const Admin: React.FC = () => {
     });
   };
 
-  const handleChangeUserForm = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }>) => {
+  const handleChangeUserForm = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }
+    >
+  ) => {
     const { name, value } = e.target;
     setUserForm({
       ...userForm,
@@ -336,31 +389,40 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleEpisodeFileChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEpisodeFileChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setFilmForm(prev => {
+      setFilmForm((prev) => {
         const updatedEpisodes = [...prev.episodes];
-        updatedEpisodes[index] = { ...updatedEpisodes[index], name: file.name, url: '' };
-        setUploadedEpisodeFiles(prevMap => new Map(prevMap).set(file.name, file));
+        updatedEpisodes[index] = {
+          ...updatedEpisodes[index],
+          name: file.name,
+          url: "",
+        };
+        setUploadedEpisodeFiles((prevMap) =>
+          new Map(prevMap).set(file.name, file)
+        );
         return { ...prev, episodes: updatedEpisodes };
       });
     }
   };
 
   const addEpisodeField = () => {
-    setFilmForm(prev => ({
+    setFilmForm((prev) => ({
       ...prev,
-      episodes: [...prev.episodes, { name: '', url: '' }],
+      episodes: [...prev.episodes, { name: "", url: "" }],
     }));
   };
 
   const removeEpisodeField = (index: number) => {
-    setFilmForm(prev => ({
+    setFilmForm((prev) => ({
       ...prev,
       episodes: prev.episodes.filter((_, i) => i !== index),
     }));
-    setUploadedEpisodeFiles(prev => {
+    setUploadedEpisodeFiles((prev) => {
       const newMap = new Map(prev);
       const episodeNameToRemove = filmForm.episodes[index]?.name;
       if (episodeNameToRemove) {
@@ -374,53 +436,61 @@ const Admin: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
-      const formData = new FormData();
+    const formData = new FormData();
 
     // Append text fields
-    formData.append('tenPhim', filmForm.tenPhim);
-    formData.append('moTa', filmForm.moTa);
-    formData.append('thoiLuong', filmForm.thoiLuong);
-    formData.append('namPhatHanh', filmForm.namPhatHanh.toString());
-    formData.append('quocGia', filmForm.quocGia);
-    formData.append('loaiPhim', filmForm.loaiPhim);
-    formData.append('soTap', filmForm.soTap.toString());
-    formData.append('theLoaiIds', JSON.stringify(filmForm.theLoaiIds));
-    formData.append('dienVien', JSON.stringify(filmForm.dienVien));
-    formData.append('daoDien', JSON.stringify(filmForm.daoDien));
+    formData.append("tenPhim", filmForm.tenPhim);
+    formData.append("moTa", filmForm.moTa);
+    formData.append("thoiLuong", filmForm.thoiLuong);
+    formData.append("namPhatHanh", filmForm.namPhatHanh.toString());
+    formData.append("quocGia", filmForm.quocGia);
+    formData.append("loaiPhim", filmForm.loaiPhim);
+    formData.append("soTap", filmForm.soTap.toString());
+    formData.append("theLoaiIds", JSON.stringify(filmForm.theLoaiIds));
+    formData.append("dienVien", JSON.stringify(filmForm.dienVien));
+    formData.append("daoDien", JSON.stringify(filmForm.daoDien));
 
     // Append poster file if exists
     if (poster) {
-      formData.append('poster', poster);
-      console.log('DEBUG: Admin.tsx - Appending poster:', poster.name);
+      formData.append("poster", poster);
+      console.log("DEBUG: Admin.tsx - Appending poster:", poster.name);
     }
 
     // Append video file if exists (for 'Phim lẻ')
-    if (filmForm.loaiPhim === 'le' && videoFile) {
-      formData.append('video', videoFile);
-      console.log('DEBUG: Admin.tsx - Appending video (single film):', videoFile.name);
+    if (filmForm.loaiPhim === "le" && videoFile) {
+      formData.append("video", videoFile);
+      console.log(
+        "DEBUG: Admin.tsx - Appending video (single film):",
+        videoFile.name
+      );
     }
 
     // Append episode files and update episodes array for 'Phim bộ'
-          if (filmForm.loaiPhim === 'bo') {
-      const episodesToSubmit = filmForm.episodes.map(episode => {
+    if (filmForm.loaiPhim === "bo") {
+      const episodesToSubmit = filmForm.episodes.map((episode) => {
         // If an episode has a newly uploaded file, we need to handle it.
         // Otherwise, it's an existing episode or a new one without a file yet.
         if (uploadedEpisodeFiles.has(episode.name)) {
           const file = uploadedEpisodeFiles.get(episode.name);
           if (file) {
-            formData.append('episodeFiles', file, episode.name); // Append with original name
-            console.log(`DEBUG: Admin.tsx - Appending episode file: ${file.name} for episode name: ${episode.name}`);
+            formData.append("episodeFiles", file, episode.name); // Append with original name
+            console.log(
+              `DEBUG: Admin.tsx - Appending episode file: ${file.name} for episode name: ${episode.name}`
+            );
             return { name: episode.name, url: file.name }; // Return the original name for the backend to look up
           }
         }
         return { name: episode.name, url: episode.url }; // For existing episodes without new files, keep their current name/url
       });
-      formData.append('clientEpisodesData', JSON.stringify(episodesToSubmit));
-      console.log('DEBUG: Admin.tsx - Appending clientEpisodesData:', JSON.stringify(episodesToSubmit));
+      formData.append("clientEpisodesData", JSON.stringify(episodesToSubmit));
+      console.log(
+        "DEBUG: Admin.tsx - Appending clientEpisodesData:",
+        JSON.stringify(episodesToSubmit)
+      );
     }
 
     // Log all FormData entries for debugging
-    console.log('DEBUG: Admin.tsx - FormData contents:');
+    console.log("DEBUG: Admin.tsx - FormData contents:");
     for (let [key, value] of formData.entries()) {
       if (value instanceof File) {
         console.log(`  ${key}: File - ${value.name} (${value.size} bytes)`);
@@ -439,21 +509,26 @@ const Admin: React.FC = () => {
       setSelectedFilm(null);
       resetFilmForm();
       // Re-fetch data to update the list
-      const [filmsRes, categoriesRes, usersRes, ratingsRes, statsRes] = await Promise.all([
-        filmService.getAllFilms({ limit: 1000 }),
-        theLoaiService.getAllCategories(),
-        userService.getAllUsers(),
-        danhGiaService.getAllRatings(),
-        adminService.getDashboardStats(),
-      ]);
+      const [filmsRes, categoriesRes, usersRes, ratingsRes, statsRes] =
+        await Promise.all([
+          filmService.getAllFilms({ limit: 1000 }),
+          theLoaiService.getAllCategories(),
+          userService.getAllUsers(),
+          danhGiaService.getAllRatings(),
+          adminService.getDashboardStats(),
+        ]);
       const categoriesList = categoriesRes.data?.categories || [];
       const filmsList = filmsRes.films || [];
-      const filmsWithCategories: FilmWithCategories[] = (filmsList || []).map(film => ({
-        ...film,
-        theLoai: (film.theLoaiIds || []).map(id =>
-          (categoriesList || []).find(cat => cat._id === id)
-        ).filter(Boolean) as ITheLoai[],
-      }));
+      const filmsWithCategories: FilmWithCategories[] = (filmsList || []).map(
+        (film) => ({
+          ...film,
+          theLoai: (film.theLoaiIds || [])
+            .map((id) =>
+              (categoriesList || []).find((cat: ITheLoai) => cat._id === id)
+            )
+            .filter(Boolean) as ITheLoai[],
+        })
+      );
       setFilms(filmsWithCategories);
       setCategories(categoriesList);
       setUsers(usersRes.data?.users || []);
@@ -461,8 +536,10 @@ const Admin: React.FC = () => {
       setStats(statsRes);
       setError(null); // Clear any previous errors
     } catch (err: any) {
-      setError('Lỗi khi lưu phim: ' + (err.response?.data?.message || err.message));
-      console.error('Film submission error:', err);
+      setError(
+        "Lỗi khi lưu phim: " + (err.response?.data?.message || err.message)
+      );
+      console.error("Film submission error:", err);
     } finally {
       setLoading(false);
     }
@@ -482,39 +559,39 @@ const Admin: React.FC = () => {
       setCategories(categoriesList);
       setOpenTheLoaiDialog(false);
       setSelectedCategory(null);
-      setTheLoaiForm({ tenTheLoai: '', moTa: '' });
+      setTheLoaiForm({ tenTheLoai: "", moTa: "" });
       setVideoFile(null);
       setUploadedEpisodeFiles(new Map());
     } catch (err) {
-      console.error('Error saving category:', err);
-      setError('Có lỗi xảy ra khi lưu thể loại. Vui lòng thử lại sau.');
+      console.error("Error saving category:", err);
+      setError("Có lỗi xảy ra khi lưu thể loại. Vui lòng thử lại sau.");
     }
   };
 
   const handleDelete = async () => {
     try {
       switch (deleteType) {
-        case 'film':
+        case "film":
           await filmService.deleteFilm(deleteId);
-          setFilms(films.filter(film => film._id !== deleteId));
+          setFilms(films.filter((film) => film._id !== deleteId));
           break;
-        case 'theLoai':
+        case "theLoai":
           await theLoaiService.deleteCategory(deleteId);
-          setCategories(categories.filter(cat => cat._id !== deleteId));
+          setCategories(categories.filter((cat) => cat._id !== deleteId));
           break;
-        case 'user':
+        case "user":
           await userService.deleteUser(deleteId);
-          setUsers(users.filter(user => user._id !== deleteId));
+          setUsers(users.filter((user) => user._id !== deleteId));
           break;
-        case 'rating':
+        case "rating":
           await danhGiaService.deleteRatingAdmin(deleteId);
-          setRatings(ratings.filter(rating => rating._id !== deleteId));
+          setRatings(ratings.filter((rating) => rating._id !== deleteId));
           break;
       }
       setOpenDeleteDialog(false);
-      setDeleteId('');
+      setDeleteId("");
     } catch (error) {
-      console.error('Error deleting:', error);
+      console.error("Error deleting:", error);
     }
   };
 
@@ -528,8 +605,8 @@ const Admin: React.FC = () => {
 
   const resetTheLoaiForm = () => {
     setTheLoaiForm({
-      tenTheLoai: '',
-      moTa: '',
+      tenTheLoai: "",
+      moTa: "",
     });
     setSelectedCategory(null);
   };
@@ -547,10 +624,10 @@ const Admin: React.FC = () => {
       setUsers(usersList);
       setOpenUserDialog(false);
       setSelectedUser(null);
-      setUserForm({ hoTen: '', email: '', role: 'user' });
+      setUserForm({ hoTen: "", email: "", role: "user" });
     } catch (error) {
-      console.error('Error submitting user:', error);
-      setError('Có lỗi xảy ra khi lưu người dùng. Vui lòng thử lại sau.');
+      console.error("Error submitting user:", error);
+      setError("Có lỗi xảy ra khi lưu người dùng. Vui lòng thử lại sau.");
     }
   };
 
@@ -559,31 +636,36 @@ const Admin: React.FC = () => {
     setUserForm({
       hoTen: user.hoTen,
       email: user.email,
-      role: user.role as 'user' | 'admin',
+      role: user.role as "user" | "admin",
     });
     setOpenUserDialog(true);
   };
 
   const handleUserDelete = async (userId: string) => {
-    setDeleteType('user');
+    setDeleteType("user");
     setDeleteId(userId);
     setOpenDeleteDialog(true);
   };
 
-  const handleUserStatusToggle = async (userId: string, currentStatus: boolean) => {
+  const handleUserStatusToggle = async (
+    userId: string,
+    currentStatus: boolean
+  ) => {
     try {
       await userService.updateUserStatus(userId, { blocked: !currentStatus });
       const response = await userService.getAllUsers();
       const usersList = response.data?.users || [];
       setUsers(usersList);
     } catch (error) {
-      console.error('Error updating user status:', error);
-      setError('Có lỗi xảy ra khi cập nhật trạng thái người dùng. Vui lòng thử lại sau.');
+      console.error("Error updating user status:", error);
+      setError(
+        "Có lỗi xảy ra khi cập nhật trạng thái người dùng. Vui lòng thử lại sau."
+      );
     }
   };
 
   const handleRatingDelete = async (ratingId: string) => {
-    setDeleteType('rating');
+    setDeleteType("rating");
     setDeleteId(ratingId);
     setOpenDeleteDialog(true);
   };
@@ -594,19 +676,20 @@ const Admin: React.FC = () => {
       tenPhim: film.tenPhim,
       moTa: film.moTa,
       thoiLuong: film.thoiLuong,
-      poster: film.poster || '',
-      videoUrl: film.videoUrl || '',
-      theLoaiIds: film.theLoai.map(cat => cat._id),
-      daoDien: film.daoDien.join(','),
+      poster: film.poster || "",
+      videoUrl: film.videoUrl || "",
+      theLoaiIds: film.theLoai.map((cat) => cat._id),
+      daoDien: film.daoDien.join(","),
       namPhatHanh: film.namPhatHanh.toString(),
-      dienVien: film.dienVien.join(','),
+      dienVien: film.dienVien.join(","),
       quocGia: film.quocGia,
       loaiPhim: film.loaiPhim,
-      soTap: film.soTap ? film.soTap.toString() : '',
-      episodes: film.episodes?.map(url => ({
-        name: url.split('/').pop() || '',
-        url: url,
-      })) || [],
+      soTap: film.soTap ? film.soTap.toString() : "",
+      episodes:
+        film.episodes?.map((url) => ({
+          name: url.split("/").pop() || "",
+          url: url,
+        })) || [],
     });
     setPoster(null);
     setVideoFile(null);
@@ -618,7 +701,7 @@ const Admin: React.FC = () => {
     setSelectedCategory(category);
     setTheLoaiForm({
       tenTheLoai: category.tenTheLoai,
-      moTa: category.moTa || '',
+      moTa: category.moTa || "",
     });
     setOpenTheLoaiDialog(true);
   };
@@ -630,7 +713,14 @@ const Admin: React.FC = () => {
   if (loading) {
     return (
       <Container>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
           <CircularProgress />
         </Box>
       </Container>
@@ -647,8 +737,12 @@ const Admin: React.FC = () => {
           {error}
         </Alert>
       )}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-        <Tabs value={tab} onChange={handleTabChange} aria-label="admin dashboard tabs">
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+        <Tabs
+          value={tab}
+          onChange={handleTabChange}
+          aria-label="admin dashboard tabs"
+        >
           <Tab label="Thống kê" />
           <Tab label="Quản lý Phim" />
           <Tab label="Quản lý Thể loại" />
@@ -658,20 +752,42 @@ const Admin: React.FC = () => {
       </Box>
 
       <TabPanel value={tab} index={0}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Typography variant="h6" gutterBottom>
             Thống kê chung
           </Typography>
         </Box>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={3} sx={{ height: '100%' }}>
-              <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 160, py: 2 }}>
-                <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 1 }}>
+            <Card elevation={3} sx={{ height: "100%" }}>
+              <CardContent
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 160,
+                  py: 2,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  color="text.secondary"
+                  align="center"
+                  sx={{ mb: 1 }}
+                >
                   Tổng số người dùng
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <PeopleIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <PeopleIcon
+                    sx={{ fontSize: 40, mr: 2, color: "primary.main" }}
+                  />
                   <Typography variant="h3" color="primary.main">
                     {stats.totalUsers}
                   </Typography>
@@ -680,13 +796,35 @@ const Admin: React.FC = () => {
             </Card>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={3} sx={{ height: '100%' }}>
-              <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 160, py: 2 }}>
-                <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 1 }}>
+            <Card elevation={3} sx={{ height: "100%" }}>
+              <CardContent
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 160,
+                  py: 2,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  color="text.secondary"
+                  align="center"
+                  sx={{ mb: 1 }}
+                >
                   Tổng số phim
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <MovieIcon sx={{ fontSize: 40, mr: 2, color: 'secondary.main' }} />
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <MovieIcon
+                    sx={{ fontSize: 40, mr: 2, color: "secondary.main" }}
+                  />
                   <Typography variant="h3" color="secondary.main">
                     {stats.totalFilms}
                   </Typography>
@@ -695,13 +833,35 @@ const Admin: React.FC = () => {
             </Card>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={3} sx={{ height: '100%' }}>
-              <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 160, py: 2 }}>
-                <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 1 }}>
+            <Card elevation={3} sx={{ height: "100%" }}>
+              <CardContent
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 160,
+                  py: 2,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  color="text.secondary"
+                  align="center"
+                  sx={{ mb: 1 }}
+                >
                   Tổng số đánh giá
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <RateReviewIcon sx={{ fontSize: 40, mr: 2, color: 'info.main' }} />
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <RateReviewIcon
+                    sx={{ fontSize: 40, mr: 2, color: "info.main" }}
+                  />
                   <Typography variant="h3" color="info.main">
                     {stats.totalRatings}
                   </Typography>
@@ -710,13 +870,35 @@ const Admin: React.FC = () => {
             </Card>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <Card elevation={3} sx={{ height: '100%' }}>
-              <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 160, py: 2 }}>
-                <Typography variant="h6" color="text.secondary" align="center" sx={{ mb: 1 }}>
+            <Card elevation={3} sx={{ height: "100%" }}>
+              <CardContent
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 160,
+                  py: 2,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  color="text.secondary"
+                  align="center"
+                  sx={{ mb: 1 }}
+                >
                   Điểm đánh giá trung bình
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <StarIcon sx={{ fontSize: 40, mr: 2, color: 'warning.main' }} />
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <StarIcon
+                    sx={{ fontSize: 40, mr: 2, color: "warning.main" }}
+                  />
                   <Typography variant="h3" color="warning.main">
                     {(stats.averageRating || 0).toFixed(1)}
                   </Typography>
@@ -745,16 +927,24 @@ const Admin: React.FC = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    console.log('DEBUG: Admin.tsx - topRatedFilms data:', stats.topRatedFilms),
+                    (console.log(
+                      "DEBUG: Admin.tsx - topRatedFilms data:",
+                      stats.topRatedFilms
+                    ),
                     stats.topRatedFilms.map((film) => (
                       <TableRow key={film._id}>
                         <TableCell>{film.tenPhim}</TableCell>
                         <TableCell align="right">
-                          <Rating value={film.diemTrungBinh} precision={0.1} readOnly size="small" />
+                          <Rating
+                            value={film.diemTrungBinh}
+                            precision={0.1}
+                            readOnly
+                            size="small"
+                          />
                         </TableCell>
                         <TableCell align="right">{film.totalRatings}</TableCell>
                       </TableRow>
-                    ))
+                    )))
                   )}
                 </TableBody>
               </Table>
@@ -797,11 +987,14 @@ const Admin: React.FC = () => {
       </TabPanel>
 
       <TabPanel value={tab} index={1}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => { setOpenFilmDialog(true); resetFilmForm(); }}
+            onClick={() => {
+              setOpenFilmDialog(true);
+              resetFilmForm();
+            }}
           >
             Thêm Phim Mới
           </Button>
@@ -830,26 +1023,38 @@ const Admin: React.FC = () => {
                 films.map((film) => (
                   <TableRow key={film._id}>
                     <TableCell>{film.tenPhim}</TableCell>
-                    <TableCell>{film.loaiPhim === 'le' ? 'Phim lẻ' : 'Phim bộ'}</TableCell>
+                    <TableCell>
+                      {film.loaiPhim === "le" ? "Phim lẻ" : "Phim bộ"}
+                    </TableCell>
                     <TableCell>{film.quocGia}</TableCell>
                     <TableCell>{film.namPhatHanh}</TableCell>
                     <TableCell>{film.daoDien}</TableCell>
                     <TableCell>
                       <Stack direction="row" spacing={1}>
                         {film.theLoai?.map((cat) => (
-                          <Chip key={cat._id} label={cat.tenTheLoai} size="small" />
+                          <Chip
+                            key={cat._id}
+                            label={cat.tenTheLoai}
+                            size="small"
+                          />
                         ))}
                       </Stack>
                     </TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleFilmEdit(film)} size="small">
+                      <IconButton
+                        onClick={() => handleFilmEdit(film)}
+                        size="small"
+                      >
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton onClick={() => {
-                        setDeleteId(film._id);
-                        setDeleteType('film');
-                        setOpenDeleteDialog(true);
-                      }} size="small">
+                      <IconButton
+                        onClick={() => {
+                          setDeleteId(film._id);
+                          setDeleteType("film");
+                          setOpenDeleteDialog(true);
+                        }}
+                        size="small"
+                      >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -862,11 +1067,14 @@ const Admin: React.FC = () => {
       </TabPanel>
 
       <TabPanel value={tab} index={2}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => { setOpenTheLoaiDialog(true); resetTheLoaiForm(); }}
+            onClick={() => {
+              setOpenTheLoaiDialog(true);
+              resetTheLoaiForm();
+            }}
           >
             Thêm Thể Loại Mới
           </Button>
@@ -893,14 +1101,20 @@ const Admin: React.FC = () => {
                     <TableCell>{category.tenTheLoai}</TableCell>
                     <TableCell>{category.moTa}</TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleTheLoaiEdit(category)} size="small">
+                      <IconButton
+                        onClick={() => handleTheLoaiEdit(category)}
+                        size="small"
+                      >
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton onClick={() => {
-                        setDeleteId(category._id);
-                        setDeleteType('theLoai');
-                        setOpenDeleteDialog(true);
-                      }} size="small">
+                      <IconButton
+                        onClick={() => {
+                          setDeleteId(category._id);
+                          setDeleteType("theLoai");
+                          setOpenDeleteDialog(true);
+                        }}
+                        size="small"
+                      >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -913,11 +1127,15 @@ const Admin: React.FC = () => {
       </TabPanel>
 
       <TabPanel value={tab} index={3}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => { setOpenUserDialog(true); setUserForm({ hoTen: '', email: '', role: 'user' }); setSelectedUser(null); }}
+            onClick={() => {
+              setOpenUserDialog(true);
+              setUserForm({ hoTen: "", email: "", role: "user" });
+              setSelectedUser(null);
+            }}
           >
             Thêm Người Dùng Mới
           </Button>
@@ -948,23 +1166,45 @@ const Admin: React.FC = () => {
                     <TableCell>{user.role}</TableCell>
                     <TableCell>
                       <Chip
-                        label={user.trangThai === 'active' ? 'Hoạt động' : 'Bị khóa'}
-                        color={user.trangThai === 'active' ? 'success' : 'error'}
+                        label={
+                          user.trangThai === "active" ? "Hoạt động" : "Bị khóa"
+                        }
+                        color={
+                          user.trangThai === "active" ? "success" : "error"
+                        }
                         size="small"
                       />
                     </TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleUserEdit(user)} size="small">
+                      <IconButton
+                        onClick={() => handleUserEdit(user)}
+                        size="small"
+                      >
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton onClick={() => handleUserStatusToggle(user._id, user.trangThai === 'active')} size="small">
-                        {user.trangThai === 'active' ? <BlockIcon fontSize="small" /> : <CheckCircleIcon fontSize="small" />}
+                      <IconButton
+                        onClick={() =>
+                          handleUserStatusToggle(
+                            user._id,
+                            user.trangThai === "active"
+                          )
+                        }
+                        size="small"
+                      >
+                        {user.trangThai === "active" ? (
+                          <BlockIcon fontSize="small" />
+                        ) : (
+                          <CheckCircleIcon fontSize="small" />
+                        )}
                       </IconButton>
-                      <IconButton onClick={() => {
-                        setDeleteId(user._id);
-                        setDeleteType('user');
-                        setOpenDeleteDialog(true);
-                      }} size="small">
+                      <IconButton
+                        onClick={() => {
+                          setDeleteId(user._id);
+                          setDeleteType("user");
+                          setOpenDeleteDialog(true);
+                        }}
+                        size="small"
+                      >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -1001,15 +1241,22 @@ const Admin: React.FC = () => {
                   <TableRow key={rating._id}>
                     <TableCell>{rating.userName}</TableCell>
                     <TableCell>{rating.filmName}</TableCell>
-                    <TableCell align="right"><Rating value={rating.rating} readOnly size="small" /></TableCell>
+                    <TableCell align="right">
+                      <Rating value={rating.rating} readOnly size="small" />
+                    </TableCell>
                     <TableCell>{rating.comment}</TableCell>
-                    <TableCell>{new Date(rating.createdAt).toLocaleDateString('vi-VN')}</TableCell>
                     <TableCell>
-                      <IconButton onClick={() => {
-                        setDeleteId(rating._id);
-                        setDeleteType('rating');
-                        setOpenDeleteDialog(true);
-                      }} size="small">
+                      {new Date(rating.createdAt).toLocaleDateString("vi-VN")}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        onClick={() => {
+                          setDeleteId(rating._id);
+                          setDeleteType("rating");
+                          setOpenDeleteDialog(true);
+                        }}
+                        size="small"
+                      >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -1022,8 +1269,15 @@ const Admin: React.FC = () => {
       </TabPanel>
 
       {/* Film Dialog */}
-      <Dialog open={openFilmDialog} onClose={() => setOpenFilmDialog(false)} fullWidth maxWidth="md">
-        <DialogTitle>{selectedFilm ? 'Chỉnh sửa phim' : 'Thêm phim mới'}</DialogTitle>
+      <Dialog
+        open={openFilmDialog}
+        onClose={() => setOpenFilmDialog(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>
+          {selectedFilm ? "Chỉnh sửa phim" : "Thêm phim mới"}
+        </DialogTitle>
         <DialogContent>
           <form onSubmit={handleFilmSubmit} id="film-form">
             <TextField
@@ -1067,7 +1321,7 @@ const Admin: React.FC = () => {
                 <MenuItem value="bo">Phim bộ</MenuItem>
               </Select>
             </FormControl>
-            {filmForm.loaiPhim === 'bo' && (
+            {filmForm.loaiPhim === "bo" && (
               <TextField
                 label="Số tập"
                 name="soTap"
@@ -1121,14 +1375,29 @@ const Admin: React.FC = () => {
                 name="theLoaiIds"
                 multiple
                 value={filmForm.theLoaiIds}
-                onChange={(e) => setFilmForm({ ...filmForm, theLoaiIds: typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value as string[] })}
+                onChange={(e) =>
+                  setFilmForm({
+                    ...filmForm,
+                    theLoaiIds:
+                      typeof e.target.value === "string"
+                        ? e.target.value.split(",")
+                        : (e.target.value as string[]),
+                  })
+                }
                 label="Thể loại"
                 required
                 renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                     {selected.map((value) => {
-                      const category = categories.find(cat => cat._id === value);
-                      return <Chip key={value} label={category ? category.tenTheLoai : value} />;
+                      const category = categories.find(
+                        (cat) => cat._id === value
+                      );
+                      return (
+                        <Chip
+                          key={value}
+                          label={category ? category.tenTheLoai : value}
+                        />
+                      );
                     })}
                   </Box>
                 )}
@@ -1141,47 +1410,74 @@ const Admin: React.FC = () => {
               </Select>
             </FormControl>
 
-            <Button
-              variant="contained"
-              component="label"
-              sx={{ mt: 2 }}
-            >
+            <Button variant="contained" component="label" sx={{ mt: 2 }}>
               Tải lên Poster
-              <input type="file" hidden onChange={handlePosterChange} name="poster" />
+              <input
+                type="file"
+                hidden
+                onChange={handlePosterChange}
+                name="poster"
+              />
             </Button>
             {poster ? (
-              <Typography variant="body2" sx={{ mt: 1 }}>{poster.name}</Typography>
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                {poster.name}
+              </Typography>
             ) : (
               filmForm.poster && (
-                <Typography variant="body2" sx={{ mt: 1 }}>{filmForm.poster.startsWith('blob:') ? 'Poster đã chọn' : `Poster hiện tại: ${filmForm.poster}`}</Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {filmForm.poster.startsWith("blob:")
+                    ? "Poster đã chọn"
+                    : `Poster hiện tại: ${filmForm.poster}`}
+                </Typography>
               )
             )}
 
-            {filmForm.loaiPhim === 'le' && (
+            {filmForm.loaiPhim === "le" && (
               <Box>
-                <Button
-                  variant="contained"
-                  component="label"
-                  sx={{ mt: 2 }}
-                >
+                <Button variant="contained" component="label" sx={{ mt: 2 }}>
                   Tải lên Video (Phim lẻ)
-                  <input type="file" hidden onChange={handleVideoChange} name="video" accept="video/*" />
+                  <input
+                    type="file"
+                    hidden
+                    onChange={handleVideoChange}
+                    name="video"
+                    accept="video/*"
+                  />
                 </Button>
                 {videoFile ? (
-                  <Typography variant="body2" sx={{ mt: 1 }}>{videoFile.name}</Typography>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    {videoFile.name}
+                  </Typography>
                 ) : (
                   filmForm.videoUrl && (
-                    <Typography variant="body2" sx={{ mt: 1 }}>{`Video hiện tại: ${filmForm.videoUrl}`}</Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ mt: 1 }}
+                    >{`Video hiện tại: ${filmForm.videoUrl}`}</Typography>
                   )
                 )}
               </Box>
             )}
 
-            {filmForm.loaiPhim === 'bo' && (
+            {filmForm.loaiPhim === "bo" && (
               <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle1" gutterBottom>Quản lý Tập phim</Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  Quản lý Tập phim
+                </Typography>
                 {filmForm.episodes.map((episode, index) => (
-                  <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, p: 2, border: '1px solid #333', borderRadius: '4px' }}>
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      mb: 2,
+                      p: 2,
+                      border: "1px solid #333",
+                      borderRadius: "4px",
+                    }}
+                  >
                     <Button
                       variant="contained"
                       component="label"
@@ -1189,36 +1485,67 @@ const Admin: React.FC = () => {
                       color="primary"
                     >
                       Tải lên tập #{index + 1}
-                      <input type="file" hidden onChange={(e) => handleEpisodeFileChange(index, e)} name={`episodeFile-${index}`} accept="video/*" />
+                      <input
+                        type="file"
+                        hidden
+                        onChange={(e) => handleEpisodeFileChange(index, e)}
+                        name={`episodeFile-${index}`}
+                        accept="video/*"
+                      />
                     </Button>
                     {uploadedEpisodeFiles.has(episode.name) ? (
-                      <Typography variant="body2" sx={{ mt: 1 }}>{uploadedEpisodeFiles.get(episode.name)?.name}</Typography>
+                      <Typography variant="body2" sx={{ mt: 1 }}>
+                        {uploadedEpisodeFiles.get(episode.name)?.name}
+                      </Typography>
                     ) : (
                       episode.url && (
-                        <Typography variant="body2" sx={{ mt: 1 }}>{`Tệp hiện tại: ${episode.url.includes('youtube.com/embed') ? 'Liên kết YouTube' : episode.url.split('/').pop()}`}</Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ mt: 1 }}
+                        >{`Tệp hiện tại: ${
+                          episode.url.includes("youtube.com/embed")
+                            ? "Liên kết YouTube"
+                            : episode.url.split("/").pop()
+                        }`}</Typography>
                       )
                     )}
-                    <IconButton onClick={() => removeEpisodeField(index)} size="small" color="error">
+                    <IconButton
+                      onClick={() => removeEpisodeField(index)}
+                      size="small"
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </Box>
                 ))}
-                <Button onClick={addEpisodeField} startIcon={<AddIcon />}>Thêm tập</Button>
+                <Button onClick={addEpisodeField} startIcon={<AddIcon />}>
+                  Thêm tập
+                </Button>
               </Box>
             )}
           </form>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenFilmDialog(false)}>Hủy</Button>
-          <Button type="submit" form="film-form" variant="contained" color="primary">
+          <Button
+            type="submit"
+            form="film-form"
+            variant="contained"
+            color="primary"
+          >
             Lưu
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Category Dialog */}
-      <Dialog open={openTheLoaiDialog} onClose={() => setOpenTheLoaiDialog(false)}>
-        <DialogTitle>{selectedCategory ? 'Chỉnh sửa thể loại' : 'Thêm thể loại mới'}</DialogTitle>
+      <Dialog
+        open={openTheLoaiDialog}
+        onClose={() => setOpenTheLoaiDialog(false)}
+      >
+        <DialogTitle>
+          {selectedCategory ? "Chỉnh sửa thể loại" : "Thêm thể loại mới"}
+        </DialogTitle>
         <DialogContent>
           <form onSubmit={handleTheLoaiSubmit} id="theloai-form">
             <TextField
@@ -1244,7 +1571,12 @@ const Admin: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenTheLoaiDialog(false)}>Hủy</Button>
-          <Button type="submit" form="theloai-form" variant="contained" color="primary">
+          <Button
+            type="submit"
+            form="theloai-form"
+            variant="contained"
+            color="primary"
+          >
             Lưu
           </Button>
         </DialogActions>
@@ -1257,12 +1589,11 @@ const Admin: React.FC = () => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {"Xác nhận xóa"}
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">{"Xác nhận xóa"}</DialogTitle>
         <DialogContent>
           <Typography id="alert-dialog-description">
-            Bạn có chắc chắn muốn xóa mục này không? Hành động này không thể hoàn tác.
+            Bạn có chắc chắn muốn xóa mục này không? Hành động này không thể
+            hoàn tác.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -1274,8 +1605,15 @@ const Admin: React.FC = () => {
       </Dialog>
 
       {/* User Dialog */}
-      <Dialog open={openUserDialog} onClose={() => setOpenUserDialog(false)} fullWidth maxWidth="sm">
-        <DialogTitle>{selectedUser ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới'}</DialogTitle>
+      <Dialog
+        open={openUserDialog}
+        onClose={() => setOpenUserDialog(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          {selectedUser ? "Chỉnh sửa người dùng" : "Thêm người dùng mới"}
+        </DialogTitle>
         <DialogContent>
           <form onSubmit={handleUserSubmit} id="user-form">
             <TextField
@@ -1304,15 +1642,28 @@ const Admin: React.FC = () => {
                 value={userForm.role}
                 onChange={handleChangeUserForm}
               >
-                <FormControlLabel value="user" control={<Radio />} label="User" />
-                <FormControlLabel value="admin" control={<Radio />} label="Admin" />
+                <FormControlLabel
+                  value="user"
+                  control={<Radio />}
+                  label="User"
+                />
+                <FormControlLabel
+                  value="admin"
+                  control={<Radio />}
+                  label="Admin"
+                />
               </RadioGroup>
             </FormControl>
           </form>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenUserDialog(false)}>Hủy</Button>
-          <Button type="submit" form="user-form" variant="contained" color="primary">
+          <Button
+            type="submit"
+            form="user-form"
+            variant="contained"
+            color="primary"
+          >
             Lưu
           </Button>
         </DialogActions>
@@ -1321,4 +1672,4 @@ const Admin: React.FC = () => {
   );
 };
 
-export default Admin; 
+export default Admin;
